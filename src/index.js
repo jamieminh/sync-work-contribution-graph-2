@@ -16,20 +16,31 @@ export default async (input) => {
     `https://github.com/users/${input.username}/contributions?tab=overview&from=${input.year}-12-01&to=${input.year}-12-31`
   );
 
+  // console.log("main - 000", { res });
+  let total = 0;
+
   // Retrieves needed data from the html, loops over green squares with 1+ contributions,
   // and produces a multi-line string that can be run as a bash command.
   const script = parse(res.data)
-    .querySelectorAll("[data-count]")
+    .querySelectorAll("[data-date]")
     .map((el) => {
+      const textElem = el.childNodes[0].textContent;
+      const contributionCount = parseInt(textElem.split(" ")[0]);
+      total += isNaN(contributionCount) ? 0 : contributionCount;
+      console.log("main - 111", {
+        attributes: el.attributes["data-date"],
+        contributionCount,
+      });
       return {
         date: el.attributes["data-date"],
-        count: parseInt(el.attributes["data-count"]),
+        count: contributionCount,
       };
     })
-    .filter((contribution) => contribution.count > 0)
+    .filter((contribution) => !isNaN(contribution.count))
     .map((contribution) => getCommand(contribution))
     .join("")
     .concat("git pull origin main\n", "git push -f origin main");
+  console.log("total - ", { total });
 
   fs.writeFile("script.sh", script, () => {
     console.log("\nFile was created successfully.");
