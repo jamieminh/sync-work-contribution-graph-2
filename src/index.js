@@ -13,7 +13,7 @@ const getCommand = (contribution) => {
 export default async (input) => {
   // Returns contribution graph html for a full selected year.
   const res = await axios.get(
-    `https://github.com/users/${input.username}/contributions?tab=overview&from=${input.year}-12-01&to=${input.year}-12-31`
+    `https://github.com/users/${input.username}/contributions?tab=overview&from=${input.year}-01-01&to=${input.year}-12-31`
   );
 
   // console.log("main - 000", { res });
